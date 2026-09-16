@@ -23,112 +23,77 @@ RegisterNumber: 212224040083
 ```
 
 ```java
-import java.util.*;
+import java.util.Scanner;
 
-public class RotateLinkedList {
-
-    static class Node {
-        int data;
-        Node next;
-
-        Node(int data) {
-            this.data = data;
-            this.next = null;
-        }
+class Node {
+    int data;
+    Node next;
+    Node(int data) {
+        this.data = data;
+        this.next = null;
     }
+}
 
-    static Node insert(Node head, int data) {
-
-        Node newNode = new Node(data);
-
-        if (head == null) {
-            return newNode;
-        }
+class prog {
+    public static Node rotateRight(Node head, int k) {
+        if (head == null || head.next == null || k == 0)
+            return head;
 
         Node temp = head;
-
+        int length = 1;
         while (temp.next != null) {
             temp = temp.next;
-        }
-
-        temp.next = newNode;
-
-        return head;
-    }
-
-    static Node rotateRight(Node head, int k) {
-
-        if (head == null || head.next == null || k == 0) {
-            return head;
-        }
-
-        // Find length and last node
-        int length = 1;
-        Node last = head;
-
-        while (last.next != null) {
-            last = last.next;
             length++;
         }
 
-        // Avoid unnecessary rotations
-        k = k % length;
+        temp.next = head;
 
-        if (k == 0) {
-            return head;
+        int stepsToNewHead = length - k % length;
+        Node newTail = head;
+        for (int i = 1; i < stepsToNewHead; i++) {
+            newTail = newTail.next;
         }
 
-        // Make the list circular
-        last.next = head;
+        Node newHead = newTail.next;
 
-        // Find new last node
-        int steps = length - k;
-        Node newLast = head;
-
-        for (int i = 1; i < steps; i++) {
-            newLast = newLast.next;
-        }
-
-        // Set new head
-        Node newHead = newLast.next;
-
-        // Break the circular link
-        newLast.next = null;
+        newTail.next = null;
 
         return newHead;
     }
 
-    static void display(Node head) {
-
+    public static void printList(Node head) {
         Node temp = head;
-
         while (temp != null) {
             System.out.print(temp.data + " ");
             temp = temp.next;
         }
-
-        System.out.println();
     }
 
     public static void main(String[] args) {
-
         Scanner sc = new Scanner(System.in);
 
         int n = sc.nextInt();
 
-        Node head = null;
+        if (n <= 0) {
+            sc.close();
+            return;
+        }
 
-        for (int i = 0; i < n; i++) {
-            int data = sc.nextInt();
-            head = insert(head, data);
+        Node head = new Node(sc.nextInt());
+        Node tail = head;
+        for (int i = 1; i < n; i++) {
+            tail.next = new Node(sc.nextInt());
+            tail = tail.next;
         }
 
         int k = sc.nextInt();
 
         head = rotateRight(head, k);
 
-        System.out.println("Rotated Linked List:");
-        display(head);
+        System.out.print("LinkedList: ");
+        printList(head);
+
+        sc.close();
     }
 }
 ```
