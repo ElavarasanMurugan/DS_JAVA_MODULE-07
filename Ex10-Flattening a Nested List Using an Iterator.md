@@ -3,14 +3,22 @@
 ## AIM:
 To design and implement a class NestedIterator that flattens a nested list of integers such that all integers can be accessed sequentially using an iterator interface (next() and hasNext()).
 ## Algorithm
-1. Create a NestedInteger interface that can represent either a single integer or a nested list.
-2. Create the NestedIterator class implementing the Iterator<Integer> interface.
-3. Use a stack to store nested elements and process them from left to right.
-4. In hasNext(), check the top element of the stack.
-5. If the top element is a list, remove it and push its elements onto the stack in reverse order.
-6. Continue until the top element becomes a single integer or the stack becomes empty.
-7. In next(), call hasNext() and then remove and return the top integer.
-8. Use hasNext() before next() to access all integers sequentially.
+1. Start the program.
+2. Define a `NestedInteger` interface or class that can hold either:
+
+   * A single integer.
+   * A nested list of integers.
+3. Create the `NestedIterator` class to flatten the nested list using a stack.
+4. Implement the following methods:
+
+   1. `hasNext()` → Checks whether more integers are available.
+   2. `next()` → Returns the next integer in sequence.
+5. In the main program:
+
+   1. Create nested lists of integers.
+   2. Create a `NestedIterator` object.
+   3. Use the iterator to traverse and print all integers sequentially.
+6. Stop the program.
 
 ## Program:
 ```
@@ -23,109 +31,127 @@ RegisterNumber: 212224040083
 
 ```java
 import java.util.*;
-
 public class NestedIterator implements Iterator<Integer> {
-
-    interface NestedInteger {
-        boolean isInteger();
-        Integer getInteger();
-        List<NestedInteger> getList();
-    }
-
-    // Simple implementation of NestedInteger
-    static class NI implements NestedInteger {
-        Integer value;
-        List<NestedInteger> list;
-
-        NI(int value) {
-            this.value = value;
-        }
-
-        NI(List<NestedInteger> list) {
-            this.list = list;
-        }
-
-        public boolean isInteger() {
-            return value != null;
-        }
-
-        public Integer getInteger() {
-            return value;
-        }
-
-        public List<NestedInteger> getList() {
-            return list;
-        }
-    }
-
-    Stack<NestedInteger> stack = new Stack<>();
+    private List<Integer> integers = new ArrayList<>();
+    private int position = 0;
 
     public NestedIterator(List<NestedInteger> nestedList) {
-
-        for (int i = nestedList.size() - 1; i >= 0; i--) {
-            stack.push(nestedList.get(i));
-        }
+        flattenList(nestedList);
     }
 
-    @Override
-    public boolean hasNext() {
-
-        while (!stack.isEmpty()) {
-
-            NestedInteger current = stack.peek();
-
-            if (current.isInteger()) {
-                return true;
+    private void flattenList(List<NestedInteger> nestedList) {
+         for(NestedInteger ni: nestedList)
+        {
+            if(ni.isInteger())
+            {
+                integers.add(ni.getInteger());
             }
-
-            stack.pop();
-
-            List<NestedInteger> list = current.getList();
-
-            for (int i = list.size() - 1; i >= 0; i--) {
-                stack.push(list.get(i));
+            else
+            {
+                flattenList(ni.getList());
             }
         }
-
-        return false;
+        
     }
 
     @Override
     public Integer next() {
-
-        if (!hasNext()) {
-            throw new NoSuchElementException();
-        }
-
-        return stack.pop().getInteger();
+        return integers.get(position++);
+        
     }
+    @Override
+    public boolean hasNext() {
+        return position<integers.size();
+        
+    }
+    public static List<NestedInteger> parse(String s) {
+    Stack<List<NestedInteger>> stack = new Stack<>();
+    List<NestedInteger> curr = new ArrayList<>();
+    int num = 0;
+    boolean hasNum = false;
 
-    // Main method
-    public static void main(String[] args) {
-
-        List<NestedInteger> list = new ArrayList<>();
-
-        list.add(new NI(1));
-
-        List<NestedInteger> inner = new ArrayList<>();
-        inner.add(new NI(2));
-
-        List<NestedInteger> inner2 = new ArrayList<>();
-        inner2.add(new NI(3));
-        inner2.add(new NI(4));
-
-        inner.add(new NI(inner2));
-
-        list.add(new NI(inner));
-        list.add(new NI(5));
-
-        NestedIterator iterator = new NestedIterator(list);
-
-        while (iterator.hasNext()) {
-            System.out.print(iterator.next() + " ");
+    for (int i = 0; i < s.length(); i++) {
+        char c = s.charAt(i);
+        if (c == '[') {
+            stack.push(curr);
+            curr = new ArrayList<>();
+        } else if (c == ']') {
+            if (hasNum) {
+                curr.add(new SimpleNestedInteger(num));
+                hasNum = false;
+                num = 0;
+            }
+            List<NestedInteger> completed = curr;
+            curr = stack.pop();
+            curr.add(new SimpleNestedInteger(completed));
+        } else if (c == ',') {
+            if (hasNum) {
+                curr.add(new SimpleNestedInteger(num));
+                hasNum = false;
+                num = 0;
+            }
+        } else if (Character.isDigit(c)) {
+            num = num * 10 + (c - '0');
+            hasNum = true;
         }
+    }
+    return curr;
+}
+
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+      
+        String input = sc.nextLine();
+
+        List<NestedInteger> nestedList = parse(input);
+
+        NestedIterator iterator = new NestedIterator(nestedList);
+        List<Integer> output = new ArrayList<>();
+        while (iterator.hasNext()) {
+            output.add(iterator.next());
+        }
+
+        System.out.println(output);
     }
 }
+
+interface NestedInteger {
+    boolean isInteger();
+    Integer getInteger();
+    List<NestedInteger> getList();
+}
+
+class SimpleNestedInteger implements NestedInteger {
+    private Integer value;
+    private List<NestedInteger> list;
+
+    public SimpleNestedInteger(Integer value) {
+        this.value = value;
+        this.list = null;
+    }
+
+    public SimpleNestedInteger(List<NestedInteger> list) {
+        this.list = list;
+        this.value = null;
+    }
+
+    @Override
+    public boolean isInteger() {
+        return value != null;
+    }
+
+    @Override
+    public Integer getInteger() {
+        return value;
+    }
+
+    @Override
+    public List<NestedInteger> getList() {
+        return list;
+    }
+}
+
 ```
 ## Output:
 

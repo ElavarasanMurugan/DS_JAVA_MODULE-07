@@ -5,14 +5,18 @@ To write a program that finds the length of the longest set s[k] defined as s[k]
 
 The task is to return the maximum size among all such sets.
 ## Algorithm
-1. Read the array nums of size n.
-2. Initialize maxLength = 0 to store the longest set length.
-3. For each index k, create a visited array to keep track of elements already included in the current set.
-4. Start with current = k and repeatedly set current = nums[current].
-5. Stop when the current element has already been visited.
-6. Count the number of elements visited during this process.
-7. Update maxLength if the current set length is greater.
-8. Display maxLength as the length of the longest set. 
+1. Start the program.
+2. Input an array `nums` representing a permutation of the numbers from `0` to `n - 1`.
+3. Initialize a boolean array `visited[]` of size `n` to keep track of visited elements.
+4. Initialize `maxLength = 0` to store the maximum length of any nested set.
+5. For each index `i` in the array:
+
+   1. If index `i` is not visited, start from index `i`.
+   2. Keep following `nums[k]` until a visited element is encountered.
+   3. Count the number of elements visited.
+   4. Update `maxLength` if the current count is greater.
+6. Output the value of `maxLength`.
+7. End the program.
 
 ## Program:
 ```
@@ -24,49 +28,41 @@ RegisterNumber: 212224040083
 ```
 ```java
 import java.util.*;
-
-public class LongestSet {
-
-    public static int longestSet(int[] nums) {
-
-        int n = nums.length;
-        int maxLength = 0;
-
-        for (int k = 0; k < n; k++) {
-
-            boolean[] visited = new boolean[n];
-            int current = k;
-            int length = 0;
-
-            while (!visited[current]) {
-
-                visited[current] = true;
-                length++;
-
-                current = nums[current];
-            }
-
-            maxLength = Math.max(maxLength, length);
-        }
-
-        return maxLength;
-    }
-
+public class ArrayNestingMain {
     public static void main(String[] args) {
-
         Scanner sc = new Scanner(System.in);
+        String input = sc.nextLine().trim();
+        input = input.replace("nums =", "").replace("[", "").replace("]", "").trim();
+        String[] parts = input.split(",");
+        int[] nums = new int[parts.length];
 
-        int n = sc.nextInt();
-
-        int[] nums = new int[n];
-
-        for (int i = 0; i < n; i++) {
-            nums[i] = sc.nextInt();
+        for (int i = 0; i < parts.length; i++) {
+            nums[i] = Integer.parseInt(parts[i].trim());
         }
+        Solution sol = new Solution();
+        int result = sol.arrayNesting(nums);
+        System.out.println(result);
+        sc.close();
+    }
+}
+class Solution {
+    public int arrayNesting(int[] nums) {
+        int maxlen = 0;
+        boolean[] visited = new boolean[nums.length];
+        for (int i = 0; i < nums.length; i++) {
+            if (!visited[i]) {
+                int count = 0;
+                int curr = i;
+                while (!visited[curr]) {
+                    visited[curr] = true;
+                    curr = nums[curr];
+                    count++;
+                }
+                maxlen = Math.max(maxlen, count);
+            }
+        }
+        return maxlen;
 
-        int result = longestSet(nums);
-
-        System.out.println("Length of longest set = " + result);
     }
 }
 ```
